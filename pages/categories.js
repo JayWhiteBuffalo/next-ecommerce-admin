@@ -9,6 +9,7 @@ import { withSwal } from 'react-sweetalert2';
     const [name, setName] = useState('');
     const [categories, setCategories] = useState([]);
     const [parentCategory, setParentCategory] = useState('');
+    const [properties, setProperties] = useState([]);
     useEffect(() => {
         fetchCategories();
     }, []);
@@ -57,31 +58,97 @@ import { withSwal } from 'react-sweetalert2';
             // when promise rejected...
         });
     }
+    function addProperty(){
+        setProperties(prev => {
+            return [...prev, {name:'',values:''}]
+        })
+    }
+    function handlePropertyNameChange(index, property, newName){
+        setProperties(prev => {
+            const properties = [...prev];
+            properties[index].name = newName;
+            return properties
+        })
+    }
+    function handlePropertyValuesChange(index, property, newValues){
+        setProperties(prev => {
+            const properties = [...prev];
+            properties[index].values = newValues;
+            return properties
+        })
+    }
+    function removeProperty(indexToRemove){
+        setProperties(prev => {
+            return [...prev].filter((p, pIndex) => {    
+                return pIndex !== indexToRemove;
+            });
+        })
+    }
     return(
         <Layout>
             <h1>Categories</h1>
             <label>{editedCategory ? `Edit Category ${editedCategory.name}` : 'Create New Category'}</label>
-            <form onSubmit={saveCategory} className="flex gap-1">
-            <input 
-                className="mb-0" 
-                type="text" 
-                placeholder={'Category name'} 
-                value={name}
-                onChange={e => setName(e.target.value)}
-                />
-                <select 
-                    className="mb-0" 
-                    onChange={e => setParentCategory(e.target.value)}
+            <form onSubmit={saveCategory} >
+                <div className="flex gap-1">
+                    <input              
+                    type="text" 
+                    placeholder={'Category name'} 
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    />
+                    <select  
+                        onChange={e => setParentCategory(e.target.value)}
+                        >
+                        <option value="None">No Parent Category</option>
+                        {categories.length > 0 && categories.map
+                        (category => ( 
+                            <option value={category._id}>{category.name}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="mb-2">
+                    <label className="block">Properties</label>
+                    <button 
+                        onClick={addProperty}
+                        type='button' 
+                        className="btn-default text-sm mb-2"
                     >
-                    <option value="None">No Parent Category</option>
-                    {categories.length > 0 && categories.map
-                    (category => ( 
-                        <option value={category._id}>{category.name}</option>
+                        Add New Property
+                    </button>
+                    {properties.length > 0 && properties.map((property,index) => (
+                        <div className="flex gap-1 mb-2">
+                            <input 
+                                className="mb-0"
+                                type="text" 
+                                value={property.name} 
+                                placeholder="property name"
+                                onChange={e => handlePropertyNameChange(index, property, e.target.value)}
+                            />
+                            <input
+                                className="mb-0" 
+                                onChange={e => handlePropertyValuesChange(index,property,e.target.value)}
+                                type="text" 
+                                value={property.values} 
+                                placeholder="values, comma separated"
+                            />
+                            <button 
+                                type="button"
+                                onClick={() => removeProperty(index)}
+                                className="btn-default">
+                                Remove
+                            </button>
+                        </div>
                     ))}
-                </select>
-            <button className="btn-primary" type="submit">Save</button>
+                </div>
+                <div className="flex gap-1">
+                {editedCategory && (
+                <button onClick={() => {setEditedCategory(null); setName(''); setParentCategory('')}} type="button" className="btn-default">Cancel</button>
+                )}
+                <button className="btn-primary" type="submit">Save</button>
+                </div>
             </form>
-            <table className="basic mt-4">
+            {!editedCategory && (
+                <table className="basic mt-4">
                 <thead>
                     <tr>
                         <td>Category Name</td>
@@ -110,6 +177,8 @@ import { withSwal } from 'react-sweetalert2';
                     ))}
                 </tbody>
             </table>
+            )}
+            
         </Layout>
     )
 }
