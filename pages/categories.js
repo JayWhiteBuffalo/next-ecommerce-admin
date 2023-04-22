@@ -21,7 +21,14 @@ import { withSwal } from 'react-sweetalert2';
     }
     async function saveCategory(e){
         e.preventDefault();
-        const data = {name, parentCategory}
+        const data = {
+            name, 
+            parentCategory, 
+            properties:properties.map(p => ({
+                name:p.name, 
+                values:p.values.split(','),
+            })),
+        };
         if (editedCategory != null){
             data._id= editedCategory._id;
             await axios.put('/api/categories', data);
@@ -31,12 +38,18 @@ import { withSwal } from 'react-sweetalert2';
         await axios.post('/api/categories', data);
         }
         setName('');
+        setParentCategory('');
+        setProperties([]);
         fetchCategories();
     }
     function editCategory(category){
         setEditedCategory(category);
         setName(category.name);
         setParentCategory(category.parent?._id);
+        setProperties(category.properties.map(({name, values}) => ({
+            name,
+            values:values.join(',')
+         })));
     }
     function deleteCategory(category){
         swal.fire({
@@ -142,7 +155,18 @@ import { withSwal } from 'react-sweetalert2';
                 </div>
                 <div className="flex gap-1">
                 {editedCategory && (
-                <button onClick={() => {setEditedCategory(null); setName(''); setParentCategory('')}} type="button" className="btn-default">Cancel</button>
+                <button 
+                    onClick={() => {
+                        setEditedCategory(null); 
+                        setName(''); 
+                        setParentCategory('');
+                        setProperties([]);
+                    }} 
+                    type="button" 
+                    className="btn-default"
+                >
+                    Cancel
+                </button>
                 )}
                 <button className="btn-primary" type="submit">Save</button>
                 </div>
