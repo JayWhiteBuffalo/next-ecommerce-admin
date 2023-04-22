@@ -81,7 +81,7 @@ export default function ProductForm({
         }
     }
     return(
-            <form onSubmit={saveProduct}>
+            <form onSubmit={saveProduct} className="flex flex-col gap-1">
                 <label>Product Name</label>
                 <input 
                     type="text" 
@@ -98,18 +98,20 @@ export default function ProductForm({
                     ))}
                 </select>
                 {propertiesToFill.length > 0 && propertiesToFill.map(property => (
-                    <div className="flex gap-1">
-                        <div>{property.name}</div>
-                        <select 
-                            value={productProperties[property.name]}
-                            onChange={e => 
-                                changeProductProperties(property.name, e.target.value) 
-                            }
-                        >
-                            {property.values.map(value => (
-                                <option value={value}>{value}</option>
-                            ))}
-                        </select>
+                    <div className="flex flex-col gap-1">
+                        <label>{property.name[0].toUpperCase()+property.name.substring(1)}</label>
+                        <div className="">
+                            <select 
+                                value={productProperties[property.name]}
+                                onChange={e => 
+                                    changeProductProperties(property.name, e.target.value) 
+                                }
+                            >
+                                {property.values.map(value => (
+                                    <option value={value}>{value}</option>
+                                ))}
+                            </select>
+                        </div>
                         </div>
                 ))
                 }
