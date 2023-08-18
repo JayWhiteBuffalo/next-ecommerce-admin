@@ -13,6 +13,7 @@ export default function ProductForm({
     images:existingImages,
     category:assignedCategory,
     properties:assingedProperties,
+    discount:assignedDiscount,
 }) {
     const [title, setTitle] = useState(existingTitle || '');
     const [description, setDescription] = useState(existingDescription || '');
@@ -23,7 +24,9 @@ export default function ProductForm({
     const [goToProducts, setGoToProducts] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [categories, setCategories] = useState([]);
+    const [discount, setDiscount] = useState((assignedDiscount || ''));
     const router = useRouter();
+    console.log(discount)
     useEffect(()=>{
         axios.get('/api/categories').then(result => {
             setCategories(result.data);
@@ -31,7 +34,7 @@ export default function ProductForm({
     },[])
     async function saveProduct(e){
         e.preventDefault();
-        const data = {title,description,price, images, category, properties:productProperties};
+        const data = {title,description,price, images, category, properties:productProperties, discount};
         if(_id) {
             //update
             await axios.put('/api/products', {...data, _id});
@@ -157,6 +160,15 @@ export default function ProductForm({
                     value={price}
                     onChange={e=> setPrice(e.target.value)}
                 />
+                <label>Discounted Product or on Sale?</label>
+                <select
+                    placeholder="True or False"
+                    value={discount}
+                    onChange={e => setDiscount(e.target.value)}
+                >
+                    <option value={false}>False</option>
+                    <option value={true}>True</option>
+                </select>
                 <button 
                     className="btn-primary"
                     type="submit">

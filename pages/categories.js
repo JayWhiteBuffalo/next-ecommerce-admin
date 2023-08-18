@@ -2,6 +2,8 @@ import Layout from "@/components/Layout";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import React from 'react';
+import Spinner from "@/components/Spinner";
+import { ReactSortable } from "react-sortablejs";
 import { withSwal } from 'react-sweetalert2';
 
  function Categories({swal}) {
@@ -10,6 +12,8 @@ import { withSwal } from 'react-sweetalert2';
     const [categories, setCategories] = useState([]);
     const [parentCategory, setParentCategory] = useState('');
     const [properties, setProperties] = useState([]);
+    const [image, setImage] = useState([]);
+    const [isUploading, setIsUploading] = useState(false);
     useEffect(() => {
         fetchCategories();
     }, []);
@@ -23,7 +27,8 @@ import { withSwal } from 'react-sweetalert2';
         e.preventDefault();
         const data = {
             name, 
-            parentCategory, 
+            parentCategory,
+            image, 
             properties:properties.map(p => ({
                 name:p.name, 
                 values:p.values.split(','),
@@ -39,13 +44,42 @@ import { withSwal } from 'react-sweetalert2';
         }
         setName('');
         setParentCategory('');
+        setImage('');
         setProperties([]);
         fetchCategories();
     }
+
+    async function uploadImage(e) {
+        const files = e.target?.files;
+        if (files?.length > 0) {
+            setIsUploading(true);
+            const data = new FormData();
+            for (const file of files) {
+                data.append('file', file);
+            }
+            const res = await axios.post('/api/upload', data);
+            if (image > 0) {
+            setImage(oldImages => {
+                return [...oldImages, ...res.data.links];
+            });
+            setIsUploading(false);
+        } else {
+            setImage(oldImages => {
+                return [oldImages, ...res.data.links];
+            });
+            setIsUploading(false);
+        }
+    }
+}
+    function updateImagesOrder(image){
+        setImage(image);
+    }
+
     function editCategory(category){
         setEditedCategory(category);
         setName(category.name);
         setParentCategory(category.parent?._id);
+        setImage(category.image);
         setProperties(category.properties.map(({name, values}) => ({
             name,
             values:values.join(',')
@@ -119,6 +153,37 @@ import { withSwal } from 'react-sweetalert2';
                         ))}
                     </select>
                 </div>
+
+                <label>
+                    Photos
+                </label>
+                <div className="mb-2 flex flex-wrap gap-2">
+                    <ReactSortable 
+                        list={image} 
+                        setList={updateImagesOrder}
+                        className="flex flex-wrap gap-1">
+                    {!!image?.length && image.map(link => (
+                        <div key={link} className="h-24">
+                            <img src={link} alt="" className="rounded-lg"/>
+                        </div>
+                    ))}
+                    </ReactSortable>
+                    {isUploading && (
+                        <div className="h-24 p-1 flex items-center">
+                            <Spinner/>
+                        </div>
+                    )}
+                    <label className=" cursor-pointer w-24 h-24 flex flex-col items-center justify-center text-sm gap-1 text-gray-500 rounded-lg bg-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15m0-3l-3-3m0 0l-3 3m3-3V15" />
+                    </svg>
+                    <div>
+                        Upload
+                    </div>
+                    <input type="file" onChange={uploadImage} className="hidden"/>
+                    </label>
+                </div>
+
                 <div className="mb-2">
                     <label className="block">Properties</label>
                     <button 
@@ -175,9 +240,9 @@ import { withSwal } from 'react-sweetalert2';
                 <table className="basic mt-4">
                 <thead>
                     <tr>
-                        <td>Category Name</td>
-                        <td>Parent Category</td>
-                        <td></td>
+                        <th>Category Name</th>
+                        <th>Parent Category</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
