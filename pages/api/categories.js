@@ -1,5 +1,5 @@
 import { mongooseConnect } from "@/lib/mongoose";
-import { Category } from "@/models/Category";
+import  Category  from "@/models/Category";
 import { getServerSession } from "next-auth";
 import { authOptions, isAdminRequest } from "./auth/[...nextauth]";
 

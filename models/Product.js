@@ -7,7 +7,7 @@ const ProductSchema = new Schema({
     images: [{type: String}],
     category: {type:mongoose.Types.ObjectId, ref:'Category'},
     properties: {type:Object, required:false},
-    discount: {type:Boolean, required:true},
+    discount: {type:Boolean},
     }, {
         timestamps: true,
     },
