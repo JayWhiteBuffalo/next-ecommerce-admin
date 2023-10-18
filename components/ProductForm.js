@@ -97,11 +97,11 @@ export default function ProductForm({
                 <select value={category} onChange={e=> setCategory(e.target.value)}>
                     <option value="">Uncategorized</option>
                     {categories.length > 0 && categories.map(c => (
-                        <option value={c._id}>{c.name}</option>
+                        <option key={c.name} value={c._id}>{c.name}</option>
                     ))}
                 </select>
                 {propertiesToFill.length > 0 && propertiesToFill.map(property => (
-                    <div className="flex flex-col gap-1">
+                    <div key={property.name} className="flex flex-col gap-1">
                         <label>{property.name[0].toUpperCase()+property.name.substring(1)}</label>
                         <div className="">
                             <select 
@@ -111,7 +111,7 @@ export default function ProductForm({
                                 }
                             >
                                 {property.values.map(value => (
-                                    <option value={value}>{value}</option>
+                                    <option key={value} value={value}>{value}</option>
                                 ))}
                             </select>
                         </div>
